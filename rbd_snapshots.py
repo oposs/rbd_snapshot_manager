@@ -164,7 +164,8 @@ def list_snapshots() -> list:
         if len(interesting_snapshots) > 0:
             return interesting_snapshots
         else:
-            die_ok(f"Found no snapshots matching {SUFFIX}")
+            logger.debug(f"Found no snapshots matching {SUFFIX}")
+            return []
     else:
         die_error(f"Pool `{POOL}` not found in cluster")
 
@@ -178,6 +179,7 @@ def acquire_lock():
     Uses ceph's general key/value store to "lock" the snapshotting process.
     """
     check_lock_cmd = COMMANDS['lock_exists'].format(lock_name=_LOCK_NAME)
+    logger.debug(f"Check if `{_LOCK_NAME}`exists...")
     stdout, stderr, ret = run_command(check_lock_cmd, False)
     if ret != 0 and "doesn't" in stderr.decode():
         logger.debug(f"Lock `{_LOCK_NAME}` did not exist, creating...")
